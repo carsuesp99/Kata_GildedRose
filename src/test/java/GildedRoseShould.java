@@ -59,7 +59,7 @@ public class GildedRoseShould {
 
     @Test
     public void quality_should_never_be_negative(){
-        Item[] items = new Item[] { new Item("foo", -1, 1) };
+        Item[] items = new Item[] { new Item("Conjured item", -1, 4) };
         gildedRose = new GildedRose(items);
         gildedRose.updateQuality();
         assertEquals(0, gildedRose.items[0].quality);

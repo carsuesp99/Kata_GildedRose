@@ -19,43 +19,45 @@ class GildedRose {
     }
 
     private void updateItemQuality(Item item) {
-        int degradeValue = item.name.equals(CONJURED) ? -2: -1;
+        boolean isExpired = item.sellIn < 1;
+        int degradeValue = determineDegradeValue(item, isExpired);
         boolean doesDegrade = !item.name.equals(AGED_BRIE) && !item.name.equals(BACKSTAGE_PASSES) && !item.name.equals(SULFURAS);
 
         if (doesDegrade) {
             adjustQuality(item, degradeValue);
         }
-        if (item.name.equals(AGED_BRIE) || item.name.equals(BACKSTAGE_PASSES)) {
+        if (item.name.equals(AGED_BRIE)) {
             adjustQuality(item, 1);
         }
         if (item.name.equals(BACKSTAGE_PASSES)) {
-            if (item.sellIn < 11) {
-                if (item.quality < 50) {
-                    adjustQuality(item, 1);
-                }
-            }
-            if (item.sellIn < 6) {
-                adjustQuality(item, 1);
-            }
+            updateBackstageQuality(item, isExpired);
         }
-
         if (!item.name.equals(SULFURAS)) {
             item.sellIn = item.sellIn - 1;
         }
-
-        if (item.sellIn < 0) {
-            if (!item.name.equals(AGED_BRIE)) {
-                if (!item.name.equals(BACKSTAGE_PASSES)) {
-                    if (!item.name.equals(SULFURAS)) {
-                        adjustQuality(item, degradeValue);
-                    }
-                } else {
-                    item.quality = item.quality - item.quality;
-                }
-            } else {
+        if (isExpired) {
+            if (item.name.equals(AGED_BRIE)) {
                 adjustQuality(item, 1);
             }
         }
+    }
+
+    private void updateBackstageQuality(Item item, boolean isExpired) {
+        adjustQuality(item, 1);
+        if (item.sellIn < 11) {
+            adjustQuality(item, 1);
+        }
+        if (item.sellIn < 6) {
+            adjustQuality(item, 1);
+        }
+        if (isExpired) {
+            item.quality = item.quality - item.quality;
+        }
+    }
+
+    private int determineDegradeValue(Item item, boolean isExpired){
+        int initialDegradeValue = item.name.equals(CONJURED) ? -2: -1;
+        return isExpired ? initialDegradeValue * 2 : initialDegradeValue;
     }
 
     private void adjustQuality(Item item, int adjustment) {
